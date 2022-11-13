@@ -14,9 +14,9 @@ rawPH4 = 2.092
 
 # Calculate slope and intercept
 
-slope = (rawPH4 - rawPH7) / (4.0 - 7.0)
+slope = (4.0 - 7.0) / (rawPH4 - rawPH7)
 intercept = 7.0 - slope * rawPH7
-print ('Calibration: pH = {0:.3f} + {1:0.3f} * voltage'.format(slope,intercept))
+print ('Calibration: pH = {0:.3f} + {1:0.3f} * voltage'.format(intercept, slope))
 
 #---------------------------------------------------------------------------
 
