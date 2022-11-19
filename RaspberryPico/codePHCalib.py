@@ -1,3 +1,5 @@
+# (c) Kristen M., 2022
+
 import board
 import analogio
 import busio
