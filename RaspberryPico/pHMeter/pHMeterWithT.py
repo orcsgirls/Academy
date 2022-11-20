@@ -31,9 +31,15 @@ green.switch_to_input(pull=digitalio.Pull.DOWN)
 raw = analogio.AnalogIn(board.GP28)
 
 # Liquids thermometer
-ow_bus = OneWireBus(board.GP22)
-ds18b20 = adafruit_ds18x20.DS18X20(ow_bus, ow_bus.scan()[0])
-
+try:
+    ow_bus = OneWireBus(board.GP22)
+    ds18b20 = adafruit_ds18x20.DS18X20(ow_bus, ow_bus.scan()[0])
+    print ("Thermometer found.")
+    tConnected = True
+except:
+    print ("Thermometer not found - disabling.")
+    tConnected = False
+    
 # LCD display
 i2c = busio.I2C(board.GP17, board.GP16)
 screen = Screen(i2c)
@@ -45,10 +51,10 @@ colorChoices=['blue','yellow','green','red','purple','white']
 screen.set_css_colour(colorChoices[color])
 
 menu=0
-menuChoices=['Measure pH?    ',
-             'Measure raw?   ',
-             'Measure temp.? ',
-             'Change color?  ']
+menuChoices=['Measure pH?     ',
+             'Measure raw?    ',
+             'Measure temp.?  ',
+             'Change color?   ']
 screen.write_at_position(menuChoices[menu], col=0, row=1)
 
 #---------------------------------------------------------------------------
@@ -81,15 +87,19 @@ def measurePH(convert,slope,intercept):
 # Measure temperature
 #---------------------------------------------------------------------------
 def measureTemp():
-    while True:
-        screen.write_at_position(f"Temp. : {ds18b20.temperature:.3f}C", col=0, row=1)
+    if tConnected:
+        while True:
+            screen.write_at_position(f"Temp. : {ds18b20.temperature:.3f}C", col=0, row=1)
 
-        for i in range(10):
-            time.sleep(0.05)
-            if(red.value):
-                buttonReleased(red)
-                return
-
+            for i in range(20):
+                time.sleep(0.05)
+                if(red.value):
+                    buttonReleased(red)
+                    return
+    else:
+        screen.write_at_position("Disabled!       ", col=0, row=1)
+        time.sleep(2.0)
+        
 #---------------------------------------------------------------------------
 # LCD color
 #---------------------------------------------------------------------------
