@@ -32,11 +32,11 @@ raw = analogio.AnalogIn(board.GP28)
 # LCD display
 i2c = busio.I2C(board.GP17, board.GP16)
 screen = Screen(i2c)
-screen.update('ORCSGirls')
+screen.update('ORCSGirls - pH')
 
 # Menu stuff
 color=1
-colorChoices=['blue','yellow','green','red']
+colorChoices=['blue','yellow','green','red','purple','white']
 screen.set_css_colour(colorChoices[color])
 
 menu=0
@@ -82,11 +82,12 @@ def backgroundColor(colorChoices, color):
             else:
                 color = 0
             screen.set_css_colour(colorChoices[color])
+            screen.write_at_position(colorChoices[color]+'             ', col=0, row=1)
         time.sleep(0.02)
 
         if(green.value):
             buttonReleased(green)
-            return
+            return color
 
 #---------------------------------------------------------------------------
 # Main Loop
@@ -111,7 +112,7 @@ while True:
             measurePH(False,slope,intercept);
             screen.write_at_position(menuChoices[menu], col=0, row=1)
         elif (menu == 2):
-            backgroundColor(colorChoices, color);
+            color = backgroundColor(colorChoices, color);
             screen.write_at_position(menuChoices[menu], col=0, row=1)
 
     time.sleep(0.02)
