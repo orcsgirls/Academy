@@ -1,0 +1,2 @@
+This is the code that needs to run on the Pico for the serial communication example.
+Note that both files (code.py and boot.py) need to be copied to the Pico!
