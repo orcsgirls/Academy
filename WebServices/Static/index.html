@@ -1,0 +1,55 @@
+<html>
+<body>
+<style>
+  body {
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  padding: 50px
+}
+
+div {
+  background: lemonchiffon;
+  margin: 0 auto;
+  width: 600px;
+  padding:20px
+}
+
+h1 {
+  color:orange;
+}
+</style>
+    
+<div>
+<h1>AIY Voice Kit</h1>
+
+<h3>Controlling the Button Led</h3>
+<p>Link <tt>/led?value=red</tt>. Off will turn it off.</p>
+
+<form target="Response" action="/led" method="get">
+    <select name="value">
+        <option value="red">Red</option>
+        <option value="green">Green</option>
+        <option value="blue">Blue</option>
+        <option value="off">Off</option>
+    </select>
+    <input type="submit" name="Do it">
+</form>
+
+<h3>Speak text</h3>
+<p>Link <tt>/say?value=text_to_speak</tt>.</p>
+
+<form target="Response" action="/say" method="get">
+    <input type="text" name="value">
+    <input type="submit" name="Say it">
+</form>
+
+<h3>Play sound file</h3>
+<p>Link <tt>/play?value=soundfile</tt>. The available sounds are in the Sounds directory of the server.
+They need to be in WAV format.</p>
+
+<hr>
+<h3>Response from API</h3>
+<iframe name="Response" style="border:none; height:75px; width:100%;"></iframe>
+</div>
+</body>
+</html>
