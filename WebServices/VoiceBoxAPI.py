@@ -6,6 +6,9 @@ from aiy.leds import Leds, Color
 import os
 import subprocess
 import tempfile
+import glob
+
+SOUND_FOLDER = "Sounds/"
 
 app = Flask(__name__)
 leds = Leds()
@@ -23,15 +26,17 @@ def say(text, lang='en-GB', volume=60, pitch=130, speed=100, device='default'):
         subprocess.check_call(cmd, shell=True)
 
 #--- Helper page ------------------------------------------------
+
 @app.route('/')
 def index():
     return send_from_directory('Static', 'index.html')
 
 #--- PLay sound file --------------------------------------------
+
 @app.route('/play', methods=['GET'])
 def play_sound():
     value = request.args.get('value')
-    file = path.join('Sounds',value+'.wav')
+    file = path.join(SOUND_FOLDER,value+'.wav')
     if path.exists(file):
         play_wav(file)
         return jsonify({'status': 'ok'})
@@ -39,6 +44,7 @@ def play_sound():
         return jsonify({'status': 'sound not found'})
 
 #--- Control button led -----------------------------------------
+
 @app.route('/led', methods=['GET'])
 def control_led():
     value = request.args.get('value')
@@ -56,11 +62,25 @@ def control_led():
     return jsonify({'status': 'ok'})
 
 #--- Say given text ----------------------------------------------
+
 @app.route('/say', methods=['GET'])
 def do_speak():
     value = request.args.get('value')
-    say(value)
-    return jsonify({'status': 'ok'})
+    if(value):
+        say(value)
+        return jsonify({'status': 'ok'})
+    else:
+        return jsonify({'error': 'missing parameter'})
 
+#--- List available sound files ----------------------------------
+
+@app.route('/list', methods=['GET'])
+def list_sounds():
+    sounds = glob.glob(path.join(SOUND_FOLDER,'*.wav'))
+    if(len(sounds)>0):
+        return jsonify([{'sound': os.path.basename(s)} for s in sounds])
+    else:
+        return jsonify({'error': 'no sounds found'})
+    
 #--------------------------------------------------------------
 app.run(host='0.0.0.0', port=5000)
