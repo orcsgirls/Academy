@@ -18,11 +18,6 @@ import time
 import threading
 import inspect
 
-def available(joystickNumber = 0):
-    """Check if a joystick is connected and ready to use."""
-    joystickPath = '/dev/input/js' + str(joystickNumber)
-    return os.path.exists(joystickPath)
-
 class Gamepad:
     EVENT_CODE_BUTTON = 0x01
     EVENT_CODE_AXIS = 0x02
@@ -70,6 +65,7 @@ class Gamepad:
                     time.sleep(0.5)
                 else:
                     raise IOError('Could not open gamepad %s: %s' % (self.joystickNumber, str(e)))
+                    
         self.eventSize = struct.calcsize('IhBB')
         self.pressedMap = {}
         self.wasPressedMap = {}
@@ -86,6 +82,30 @@ class Gamepad:
         self.releasedEventMap = {}
         self.changedEventMap = {}
         self.movedEventMap = {}
+        
+        self.axisNames = {
+            0: 'LEFT-X',    #Left Analog Stick Left/Right
+            1: 'LEFT-Y',    #Left Analog Stick Up/Down
+            2: 'LT-2',      #Left Trigger 2
+            3: 'RIGHT-X',   #Right Analog Stick Left/Right
+            4: 'RIGHT-Y',   #Right Analog Stick Up/Down
+            5: 'RT-2',      #Right Trigger 2
+            6: 'DPAD-X',    #D-Pad Left/Right
+            7: 'DPAD-Y'     #D-Pad Up/Down
+        }
+        self.buttonNames = {
+            0:  'A',        #A Button
+            1:  'B',        #B Button
+            2:  'X',        #X Button
+            3:  'Y',        #Y Button
+            4:  'LT-1',     #Left Trigger Button 1
+            5:  'RT-1',     #Right Trigger Button 1
+            6:  'SELECT',   #Select Button
+            7:  'START',    #Start Button
+            8:  'HOME',     #Home Button
+                
+        }
+        self._setupReverseMaps()
 
     def __del__(self):
         try:
@@ -541,76 +561,3 @@ class Gamepad:
         self.stopBackgroundUpdates()
         del self.joystickFile
 
-###########################
-# Import gamepad mappings #
-###########################
-scriptDir = os.path.dirname(os.path.realpath(__file__))
-controllerScript = os.path.join(scriptDir, "Controllers.py")
-exec(open(controllerScript).read())
-
-# Generate a list of available gamepad types
-moduleDict = globals()
-classList = [moduleDict[a] for a in moduleDict.keys() if inspect.isclass(moduleDict[a])]
-controllerDict = {}
-deviceNames = []
-for gamepad in classList:
-    controllerDict[gamepad.__name__.upper()] = gamepad
-    deviceNames.append(gamepad.__name__)
-deviceNames.sort()
-
-##################################################################
-# When this script is run it provides testing code for a gamepad #
-##################################################################
-
-if __name__ == "__main__":
-    # Python 2/3 compatibility
-    try:
-        input = raw_input
-    except NameError:
-        pass
-
-    # ANSI colour code sequences
-    GREEN = '\033[0;32m'
-    CYAN = '\033[0;36m'
-    BLUE = '\033[1;34m'
-    RESET = '\033[0m'
-
-    # Ask for the gamepad to use
-    print('Gamepad axis and button events...')
-    print('Press CTRL+C to exit')
-    print('')
-    print('Available device names:')
-    formatString = '    ' + GREEN + '%s' + RESET + ' - ' + CYAN + '%s' + RESET
-    for device in deviceNames:
-        print(formatString % (device, controllerDict[device.upper()].fullName))
-    print('')
-    print('What device name are you using (leave blank if not in the list)')
-    device = input('? ' + GREEN).strip().upper()
-    print(RESET)
-
-    # Wait for a connection
-    if not available():
-        print('Please connect your gamepad...')
-        while not available():
-            time.sleep(1.0)
-    print('Gamepad connected')
-
-    # Pick the correct class
-    if device in controllerDict:
-        print(controllerDict[device].fullName)
-        gamepad = controllerDict[device]()
-    elif device == '':
-        print('Unspecified gamepad')
-        print('')
-        gamepad = Gamepad()
-    else:
-        print('Unknown gamepad')
-        print('')
-        sys.exit()
-
-    # Display the event messages as they arrive
-    while True:
-        eventType, index, value = gamepad.getNextEvent()
-        print(BLUE + eventType + RESET + ',\t  ' +
-              GREEN + str(index) + RESET + ',\t' +
-              CYAN + str(value) + RESET)
