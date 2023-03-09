@@ -66,8 +66,12 @@ def control_led():
 @app.route('/say', methods=['GET'])
 def do_speak():
     value = request.args.get('value')
+    pitch = request.args.get('pitch')
     if(value):
-        say(value)
+        if(pitch):
+            say(value, pitch=int(pitch))
+        else:
+            say(value)
         return jsonify({'status': 'ok'})
     else:
         return jsonify({'error': 'missing parameter'})
