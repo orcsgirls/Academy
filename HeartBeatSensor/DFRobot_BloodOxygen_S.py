@@ -15,7 +15,7 @@ import time
 import smbus
 import os
 import math
-import RPi.GPIO as GPIO
+#import RPi.GPIO as GPIO
 import math
 from DFRobot_RTU import *
 
